@@ -23,6 +23,15 @@ const SettingsView = (() => {
     { code: 'VND', symbol: '₫', name: 'Vietnamese Dong' },
   ];
 
+  function backupStatusText() {
+    const days = Store.daysSinceBackup();
+    if (days === null) return '⚠️ No backup yet — export to keep your data safe';
+    if (days === 0) return 'Last backup: today';
+    if (days === 1) return 'Last backup: yesterday';
+    if (days >= 7) return `⚠️ Last backup: ${days} days ago — time to back up`;
+    return `Last backup: ${days} days ago`;
+  }
+
   function render() {
     const meta = Store.getState().meta;
     const accounts = Store.getState().accounts;
@@ -104,7 +113,7 @@ const SettingsView = (() => {
           <div class="settings-row">
             <div>
               <div class="label">Export Backup (JSON)</div>
-              <div class="desc">Save all your data to a file</div>
+              <div class="desc">${backupStatusText()}</div>
             </div>
             <button class="btn btn-sm" id="export-json">Export</button>
           </div>
@@ -285,18 +294,6 @@ const SettingsView = (() => {
     });
   }
 
-  function downloadFile(filename, content, mime) {
-    const blob = new Blob([content], { type: mime });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = filename;
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-    URL.revokeObjectURL(url);
-  }
-
   function afterRender(container) {
     container.querySelector('#set-currency').addEventListener('change', (e) => {
       const c = CURRENCIES.find(x => x.code === e.target.value);
@@ -328,11 +325,13 @@ const SettingsView = (() => {
     });
 
     container.querySelector('#export-json').addEventListener('click', () => {
-      downloadFile(`pocketledger-backup-${Util.todayISO()}.json`, Store.exportData(), 'application/json');
+      UI.downloadFile(`pocketledger-backup-${Util.todayISO()}.json`, Store.exportData(), 'application/json');
+      Store.markBackedUp();
       UI.toast('Backup exported');
+      App.refresh();
     });
     container.querySelector('#export-csv').addEventListener('click', () => {
-      downloadFile(`pocketledger-transactions-${Util.todayISO()}.csv`, Store.exportCSV(), 'text/csv');
+      UI.downloadFile(`pocketledger-transactions-${Util.todayISO()}.csv`, Store.exportCSV(), 'text/csv');
       UI.toast('CSV exported');
     });
     container.querySelector('#import-json').addEventListener('change', async (e) => {

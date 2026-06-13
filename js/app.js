@@ -30,7 +30,18 @@ const App = (() => {
       setTimeout(() => Wizard.start(), 300);
     } else {
       setTimeout(() => Help.maybeShowOverview(), 300);
+      setTimeout(maybeRemindBackup, 1400);
     }
+  }
+
+  function maybeRemindBackup() {
+    if (!Store.needsBackupReminder()) return;
+    UI.actionToast('Back up your data — it only lives on this device.', 'Export', () => {
+      UI.downloadFile(`pocketledger-backup-${Util.todayISO()}.json`, Store.exportData(), 'application/json');
+      Store.markBackedUp();
+      UI.toast('Backup exported');
+      if (currentRoute === 'settings') render();
+    });
   }
 
   function routeFromHash() {
