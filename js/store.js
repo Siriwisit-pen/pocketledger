@@ -46,27 +46,30 @@ const Store = (() => {
     };
   }
 
+  // Backfill any missing fields so older/partial data (from a previous app
+  // version or an imported backup) is safe to render and compute against.
+  function normalize(s) {
+    const def = defaultState();
+    s.meta = Object.assign({}, def.meta, s.meta);
+    if (!s.accounts) s.accounts = def.accounts;
+    if (!s.categories) s.categories = def.categories;
+    if (!s.categories.expense) s.categories.expense = def.categories.expense;
+    if (!s.categories.income) s.categories.income = def.categories.income;
+    if (!Array.isArray(s.transactions)) s.transactions = [];
+    if (!Array.isArray(s.budgets)) s.budgets = [];
+    if (!Array.isArray(s.recurring)) s.recurring = [];
+    if (!Array.isArray(s.goals)) s.goals = [];
+    for (const b of s.budgets) {
+      if (!b.createdAt) b.createdAt = Util.todayISO();
+      if (b.rollover == null) b.rollover = false;
+    }
+    return s;
+  }
+
   function load() {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
-      if (raw) {
-        state = JSON.parse(raw);
-        // backfill any missing fields for forward-compatibility
-        const def = defaultState();
-        state.meta = Object.assign({}, def.meta, state.meta);
-        if (!state.accounts) state.accounts = def.accounts;
-        if (!state.categories) state.categories = def.categories;
-        if (!state.transactions) state.transactions = [];
-        if (!state.budgets) state.budgets = [];
-        if (!state.recurring) state.recurring = [];
-        if (!state.goals) state.goals = [];
-        for (const b of state.budgets) {
-          if (!b.createdAt) b.createdAt = Util.todayISO();
-          if (b.rollover == null) b.rollover = false;
-        }
-      } else {
-        state = defaultState();
-      }
+      state = raw ? normalize(JSON.parse(raw)) : defaultState();
     } catch (e) {
       console.error('Failed to load data, resetting.', e);
       state = defaultState();
@@ -625,8 +628,7 @@ const Store = (() => {
   function importData(json) {
     const parsed = JSON.parse(json);
     if (!parsed || !parsed.accounts || !parsed.categories) throw new Error('Invalid backup file');
-    state = parsed;
-    if (!state.meta) state.meta = {};
+    state = normalize(parsed);
     // A current backup file demonstrably exists (the one just imported), so reset the reminder clock.
     state.meta.lastBackupAt = new Date().toISOString();
     save();
