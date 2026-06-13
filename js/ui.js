@@ -156,8 +156,21 @@ const UI = (() => {
     });
   }
 
+  /* ---------- File download ---------- */
+  function downloadFile(filename, content, mime) {
+    const blob = new Blob([content], { type: mime });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  }
+
   return {
     NAV_ITEMS, renderNav, openModal, closeModal, toast, actionToast, confirmDialog,
-    CATEGORY_ICONS, ACCOUNT_ICONS, iconPicker, bindIconPicker,
+    CATEGORY_ICONS, ACCOUNT_ICONS, iconPicker, bindIconPicker, downloadFile,
   };
 })();

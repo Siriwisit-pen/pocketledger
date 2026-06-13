@@ -14,6 +14,7 @@ const Store = (() => {
         lastUsedAccountId: null,
         warningThreshold: 0.8,
         helpSeen: {},
+        lastBackupAt: null,
       },
       accounts: [
         { id: Util.uid('acc'), name: 'Cash', type: 'cash', icon: '💵', initialBalance: 0, createdAt: Util.todayISO() },
@@ -93,6 +94,24 @@ const Store = (() => {
     if (!state.meta.helpSeen) state.meta.helpSeen = {};
     state.meta.helpSeen[key] = true;
     save();
+  }
+
+  /* ---------- Backup tracking ---------- */
+  function markBackedUp() {
+    state.meta.lastBackupAt = new Date().toISOString();
+    save();
+  }
+  function daysSinceBackup() {
+    if (!state.meta.lastBackupAt) return null;
+    const then = new Date(state.meta.lastBackupAt).getTime();
+    if (isNaN(then)) return null;
+    return Math.floor((Date.now() - then) / 86400000);
+  }
+  function needsBackupReminder() {
+    if (!state.meta.setupDone) return false;
+    if (!state.transactions || state.transactions.length === 0) return false;
+    const days = daysSinceBackup();
+    return days === null || days >= 7;
   }
 
   /* ---------- Accounts ---------- */
@@ -607,6 +626,9 @@ const Store = (() => {
     const parsed = JSON.parse(json);
     if (!parsed || !parsed.accounts || !parsed.categories) throw new Error('Invalid backup file');
     state = parsed;
+    if (!state.meta) state.meta = {};
+    // A current backup file demonstrably exists (the one just imported), so reset the reminder clock.
+    state.meta.lastBackupAt = new Date().toISOString();
     save();
   }
   function resetAll() {
@@ -637,6 +659,7 @@ const Store = (() => {
   return {
     load, save, getState,
     setMeta, hasSeenHelp, markHelpSeen,
+    markBackedUp, daysSinceBackup, needsBackupReminder,
     addAccount, updateAccount, deleteAccount, getAccount, accountBalance, totalBalance,
     addCategory, updateCategory, deleteCategory, getCategory, getCategoryAny,
     addTransaction, updateTransaction, deleteTransaction, getTransaction, filterTransactions, transactionsForMonth,
