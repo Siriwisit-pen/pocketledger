@@ -1,5 +1,5 @@
 /* ---------- PocketLedger service worker ---------- */
-const CACHE_NAME = 'pocketledger-v4';
+const CACHE_NAME = 'pocketledger-v5';
 const ASSETS = [
   './',
   './index.html',
