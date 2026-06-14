@@ -1,6 +1,8 @@
 /* ---------- App router & bootstrap ---------- */
 const App = (() => {
 
+  const VERSION = '1.0.0';
+
   const VIEWS = {
     dashboard: { title: 'Dashboard', module: () => DashboardView },
     transactions: { title: 'Transactions', module: () => TransactionsView },
@@ -98,7 +100,7 @@ const App = (() => {
     reminders = Store.processRecurring();
   }
 
-  return { init, navigate, refresh, applyTheme, getReminders, refreshReminders };
+  return { init, navigate, refresh, applyTheme, getReminders, refreshReminders, VERSION };
 })();
 
 document.addEventListener('DOMContentLoaded', App.init);

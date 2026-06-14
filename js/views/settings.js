@@ -144,7 +144,49 @@ const SettingsView = (() => {
         </div>
       </div>
 
-      <div class="text-muted" style="text-align:center;font-size:0.75rem;padding:6px 0 16px;">PocketLedger · Your data stays on this device</div>
+      <div class="card section">
+        <div class="card-title">About</div>
+        <div class="settings-list">
+          <div class="settings-row">
+            <div>
+              <div class="label">PocketLedger</div>
+              <div class="desc">Personal Expense Manager</div>
+            </div>
+            <span class="badge">v${App.VERSION}</span>
+          </div>
+          <div class="settings-row">
+            <div>
+              <div class="label">Created by</div>
+              <div class="desc">Siriwisit Pengkaew</div>
+            </div>
+          </div>
+          <div class="settings-row">
+            <div>
+              <div class="label">GitHub</div>
+              <div class="desc"><a href="https://github.com/Siriwisit-pen" target="_blank" rel="noopener" style="color:var(--primary);">@Siriwisit-pen</a></div>
+            </div>
+          </div>
+          <div class="settings-row">
+            <div>
+              <div class="label">Email</div>
+              <div class="desc"><a href="mailto:siriwisit.pen@gmail.com" style="color:var(--primary);">siriwisit.pen@gmail.com</a></div>
+            </div>
+          </div>
+          <div class="settings-row">
+            <div>
+              <div class="label">Source code</div>
+              <div class="desc"><a href="https://github.com/Siriwisit-pen/pocketledger" target="_blank" rel="noopener" style="color:var(--primary);">github.com/Siriwisit-pen/pocketledger</a></div>
+            </div>
+          </div>
+          <div class="settings-row">
+            <div>
+              <div class="label">Inspired by</div>
+              <div class="desc">Melany Mabel Navas Perez</div>
+            </div>
+          </div>
+        </div>
+        <div class="text-muted" style="text-align:center;font-size:0.78rem;padding:10px 0 4px;">Made in Thailand 🇹🇭 · Your data stays private on this device</div>
+      </div>
     `;
   }
 
